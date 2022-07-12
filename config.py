@@ -1,0 +1,15 @@
+HOST = "192.168.1.140"
+PORT = 21
+USER_NAME = "stas"
+USER_PASSWORD = "55535"
+FTP_ENCODING_TYPE = "utf-8"
+UPLOAD_FILE_PATH = r".\files_for_upload\Catalogue listing May22.xlsx"
+UPLOAD_FILE_NAME = "Catalogue listing May22.xlsx"
+DOWNLOAD_FILE_PATH = r".\downloaded_files\Catalogue listing May22.xlsx"
+DOWNLOAD_FILE_NAME = "Catalogue listing May22.xlsx"
+DOWNLOADED_FILE_PATH = "D:\\Piton\\training_program\\Catalogue listing May22.xlsx"
+DOWNLOADED_FILE_NEW_PATH = "D:\\Piton\\training_program\\downloaded_files\\Catalogue listing May22.xlsx"
+
+SHOP_API_KEY = "83e91cbf68e5102d1b5d7e3d56128bf8"
+SHOP_SECRET_API_KEY = "22c2194803a3651bcb95f9244e5f3929"
+SHOP_URL = "products-in-shop.myshopify.com"
