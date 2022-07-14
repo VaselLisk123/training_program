@@ -11,26 +11,31 @@ def create_product():
             "product_type": str(row["Product Type"]),
             "vendor": str(row["Brand"]),
             "tags": str(row["Category"]),
-            "inventory_quantity": row["Carton Qty"],
-            "compare_at_price": row["RRP#T"],
         })
         new_product = shopify.Variant.create({
             "product_id": new_product.get_id(),
             "barcode": str(row["Barcode"]),
             "sku": str(row["CentreSoft Code"]),
+            "inventory_quantity": row["Carton Qty"],
             "price": str(row["Trade (Inc Vat)"]),
+            "compare_at_price": str(row["RRP#T"]),
             "weight": row["WGHTA (KG)"],
-            "option1": 1
+            "option1": "Title",
         })
-        new_product.save()
+        inventory_level = shopify.InventoryLevel({
+            "location_id": 321321,
+            "inventory_item_id": new_product.inventory_item_id,
+            "relocate_if_necessary": False,
+        })
+
         for key in metafield_keys:
-            shopify_request = shopify.Metafield({
+            product_metafield = shopify.Metafield({
                 "key": key,
                 "value": str(row[key]),
-                "value_type": "string",
+                "type": "string",
                 "namespace": "trm_test",
             })
-            new_product.add_metafield(shopify_request)
+            new_product.add_metafield(product_metafield)
             new_product.save()  
         break
              
