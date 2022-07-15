@@ -3,16 +3,15 @@ import config
 import shopify
 
 def product_exists(check_sku,variants):
-    variant_sku = []
     for variant in variants:
-        if (variant.sku == ""):
+        if variant.sku == "":
             continue
-        variant_sku.append(variant.sku)
-    for variant in variant_sku:
-        if variant == check_sku:
-            return True
-        elif variant != check_sku:
-            return False
+        variant_sku = variant.sku
+        for variant in variant_sku:
+            if variant == check_sku:
+                return True
+            elif variant != check_sku:
+                return False
 
             
 
