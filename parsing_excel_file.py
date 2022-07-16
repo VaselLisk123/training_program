@@ -1,18 +1,22 @@
+from numpy import var
 import pandas as pd
 import config
 import shopify
 
+def sku_filter(variants):
+    for variant in variants:
+        variant_sku = variant.sku
+        if variant_sku == "":
+            return variant
+
+
 def product_exists(check_sku,variants):
     for variant in variants:
-        if variant.sku == "":
-            continue
-        variant_sku = variant.sku
-        for variant in variant_sku:
-            if variant == check_sku:
-                return True
-            elif variant != check_sku:
-                return False
-
+        if variant.sku == check_sku:
+            variants.remove(variant)
+            return True
+        else:
+            return False
             
 
 def create_product(excel_info):
@@ -20,7 +24,12 @@ def create_product(excel_info):
     var = shopify.Variant.find()
     for i,row in excel_info.iterrows():
         check_sku = (str(row["CentreSoft Code"]))
-        if product_exists(check_sku,var) == False:
+        cleared_sku = sku_filter(var)
+        if len(var) != 0:
+            var.remove(cleared_sku)
+        if product_exists(check_sku,var) == True:
+            print("updated")
+        else:
             new_product = shopify.Product.create({
             "title": "test",
             "product_type": str(row["Product Type"]),
@@ -52,8 +61,6 @@ def create_product(excel_info):
                 })
                 new_product.add_metafield(product_metafield)
                 new_product.save()
-        else:
-            print("updated")
 
 file_reader = pd.read_excel(config.DOWNLOADED_FILE_NEW_PATH,sheet_name="Brand & Category",skiprows=6)          
 api_version = "2022-04"
