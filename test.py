@@ -22,11 +22,11 @@ def update_product_image(row,product_id):
     "src": str(row["IMAGE_URL"])
     })
 
-def update_product_metafields(row,variant_id):
+def update_product_metafields(row,product_id):
     metafield_keys = ["Platform","Product","HGHTA (CMS)","WDTHA (CMS)","LGTHA (CMS)","RELEASE_DATE"]
     for key in metafield_keys:
         product_metafield = shopify.Metafield.create({
-            "variant_id": variant_id,
+            "product_id": product_id,
             "namespace": "trm_test",
             "key": key,
             "value": str(row[key]),
@@ -64,7 +64,7 @@ def create_product(row,location_id):
     product_id = variant.product_id
     update_product_inventory(variant,row,location_id)
     update_product_image(row,product_id)
-    update_product_metafields(row,variant.id)
+    update_product_metafields(row,product_id)
 
 def upload_products(excel_info):
     all_variants = shopify.Variant.find()
