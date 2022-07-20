@@ -5,11 +5,11 @@ import config
 import shopify
 
 def variant_sku_filter(variants,check_sku):
-    for variant in variants:
-        variant_sku = variant.sku
-        if variant_sku == "":
+    for variant in reversed(variants):
+        if variant.sku == "":
             variants.remove(variant)
-        elif variant_sku == check_sku:
+    for variant in variants:
+        if variant.sku == check_sku:
             variants.remove(variant)
             return variant
 
