@@ -1,21 +1,13 @@
-from gettext import find
-from re import S
 import pandas as pd
 import config
 import shopify
 
-def variant_sku_filter(variants,check_sku):
-    for variant in reversed(variants):
-        if variant.sku == "":
-            variants.remove(variant)
+def variant_sku_empty_filter(variants,check_sku):
     for variant in variants:
         if variant.sku == check_sku:
-            variants.remove(variant)
             return variant
-
-def check_product():
-    pass
-
+    return None
+ 
 def update_product_inventory(variant_instance,row,location_id):
     inventory_item_id = variant_instance.inventory_item_id
     inventory_item = shopify.InventoryItem.find(inventory_item_id)
@@ -77,8 +69,8 @@ def upload_products(excel_info):
     all_variants = shopify.Variant.find()
     for i,row in excel_info.iterrows():
         check_sku = (str(row["CentreSoft Code"]))
-        current_variant = variant_sku_filter(all_variants,check_sku)
-        if current_variant == None:
+        current_variant = variant_sku_empty_filter(all_variants,check_sku)
+        if not current_variant:
             create_product(row,default_location_id)
         else:
             variant = shopify.Variant.find(current_variant.id)
