@@ -25,13 +25,15 @@ def update_product_image(row,product_id):
 def update_product_metafields(row,product_id):
     product = shopify.Product.find(product_id)
     metafield_keys = ["Platform","Product","HGHTA (CMS)","WDTHA (CMS)","LGTHA (CMS)","RELEASE_DATE"]
+    metafield_namespaces = ["platform","product","height","width","length","release_date"]
     for key in metafield_keys:
-        product_metafield = shopify.Metafield({
-            "namespace": "trm_test",
-            "key": key,
-            "value": str(row[key]),
-            "type": "string",
-        })
+        for namespace in metafield_namespaces:
+            product_metafield = shopify.Metafield({
+                "namespace": f"trm_{namespace}",
+                "key": key,
+                "value": str(row[key]),
+                "type": "string",
+            })
         product.add_metafield(product_metafield)
 
 def new_product_with_variant(row):
