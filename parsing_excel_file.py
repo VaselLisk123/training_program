@@ -8,7 +8,6 @@ def sku_filter(variants):
             if variant_sku == "":
                 return variant
 
-
 def product_exists(check_sku,variants):
         for variant in variants:
                 if variant.sku == check_sku:
@@ -17,7 +16,6 @@ def product_exists(check_sku,variants):
                 else:
                     return False
             
-
 def create_product(excel_info):
     metafield_keys = ["Platform","Product","HGHTA (CMS)","WDTHA (CMS)","LGTHA (CMS)","RELEASE_DATE"]
     var = shopify.Variant.find()
@@ -63,10 +61,6 @@ def create_product(excel_info):
                 inventory_item_id=inventory_item_id,
                 available=row["Carton Qty"],
             )
-            image = shopify.Image.create({
-            "product_id": current_product_id,
-            "src": str(row["IMAGE_URL"])
-            })
             for key in metafield_keys:
                 product_metafield = shopify.Metafield.create({
                     "namespace": "trm_test",
