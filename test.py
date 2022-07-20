@@ -2,7 +2,7 @@ import pandas as pd
 import config
 import shopify
 
-def variant_sku_empty_filter(variants,check_sku):
+def variant_existance(variants,check_sku):
     for variant in variants:
         if variant.sku == check_sku:
             return variant
@@ -22,10 +22,11 @@ def update_product_image(row,product_id):
     "src": str(row["IMAGE_URL"])
     })
 
-def update_product_metafields(row):
+def update_product_metafields(row,variant_id):
     metafield_keys = ["Platform","Product","HGHTA (CMS)","WDTHA (CMS)","LGTHA (CMS)","RELEASE_DATE"]
     for key in metafield_keys:
         product_metafield = shopify.Metafield.create({
+            "variant_id": variant_id,
             "namespace": "trm_test",
             "key": key,
             "value": str(row[key]),
@@ -63,13 +64,13 @@ def create_product(row,location_id):
     product_id = variant.product_id
     update_product_inventory(variant,row,location_id)
     update_product_image(row,product_id)
-    update_product_metafields(row)
+    update_product_metafields(row,variant.id)
 
 def upload_products(excel_info):
     all_variants = shopify.Variant.find()
     for i,row in excel_info.iterrows():
         check_sku = (str(row["CentreSoft Code"]))
-        current_variant = variant_sku_empty_filter(all_variants,check_sku)
+        current_variant = variant_existance(all_variants,check_sku)
         if not current_variant:
             create_product(row,default_location_id)
         else:
