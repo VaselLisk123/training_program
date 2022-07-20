@@ -23,15 +23,16 @@ def update_product_image(row,product_id):
     })
 
 def update_product_metafields(row,product_id):
+    product = shopify.Product.find(product_id)
     metafield_keys = ["Platform","Product","HGHTA (CMS)","WDTHA (CMS)","LGTHA (CMS)","RELEASE_DATE"]
     for key in metafield_keys:
-        product_metafield = shopify.Metafield.create({
-            "product_id": product_id,
+        product_metafield = shopify.Metafield({
             "namespace": "trm_test",
             "key": key,
             "value": str(row[key]),
             "type": "string",
         })
+        product.add_metafield(product_metafield)
 
 def new_product_with_variant(row):
     new_product = shopify.Product.create({
