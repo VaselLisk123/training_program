@@ -1,0 +1,2 @@
+class CantCreateVariant(Exception):
+    pass

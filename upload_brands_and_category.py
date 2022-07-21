@@ -18,40 +18,38 @@ def update_product_inventory(variant_instance,row,location_id):
 
 def update_product_image(row,product_id):
     image = shopify.Image.create({
-    "product_id": product_id,
-    "src": str(row["IMAGE_URL"])
+        "product_id": product_id,
+        "src": str(row["IMAGE_URL"])
     })
 
 def update_product_metafields(row,product_id):
     product = shopify.Product.find(product_id)
     metafield_keys = ["Platform","Product","HGHTA (CMS)","WDTHA (CMS)","LGTHA (CMS)","RELEASE_DATE"]
-    metafield_namespaces = ["platform","product","height","width","length","release_date"]
     for key in metafield_keys:
-        for namespace in metafield_namespaces:
-            product_metafield = shopify.Metafield({
-                "namespace": f"trm_{namespace}",
-                "key": key,
-                "value": str(row[key]),
-                "type": "string",
-            })
+        product_metafield = shopify.Metafield({
+            "namespace": f"trm_{(key.replace(' ','')).lower()}",
+            "key": key,
+            "value": str(row[key]),
+            "type": "string",
+        })
         product.add_metafield(product_metafield)
 
 def new_product_with_variant(row):
     new_product = shopify.Product.create({
-    "title": "Default Title",
-    "product_type": str(row["Product Type"]),
-    "vendor": str(row["Brand"]),
-    "tags": str(row["Category"]),
+        "title": "Default Title",
+        "product_type": str(row["Product Type"]),
+        "vendor": str(row["Brand"]),
+        "tags": str(row["Category"]),
     })
     product_id = new_product.get_id()
     new_product = shopify.Variant.create({
-    "product_id": product_id,
-    "barcode": str(row["Barcode"]),
-    "sku": str(row["CentreSoft Code"]),
-    "price": str(row["Trade (Inc Vat)"]),
-    "compare_at_price": str(row["RRP#T"]),
-    "weight": row["WGHTA (KG)"],
-    "option1": "Title",
+        "product_id": product_id,
+        "barcode": str(row["Barcode"]),
+        "sku": str(row["CentreSoft Code"]),
+        "price": str(row["Trade (Inc Vat)"]),
+        "compare_at_price": str(row["RRP#T"]),
+        "weight": row["WGHTA (KG)"],
+        "option1": "Title",
     })
     variant_id = new_product.get_id()
     variant = shopify.Variant.find(variant_id)
@@ -73,7 +71,7 @@ def upload_products(excel_info):
     all_variants = shopify.Variant.find()
     for i,row in excel_info.iterrows():
         check_sku = (str(row["CentreSoft Code"]))
-        current_variant = variant_existance(all_variants,check_sku)
+        current_variant = if_variant(all_variants,check_sku)
         if not current_variant:
             create_product(row,default_location_id)
         else:
