@@ -2,7 +2,7 @@ import pandas as pd
 import config
 import shopify
 
-def variant_existance(variants,check_sku):
+def if_variant(variants,check_sku):
     for variant in variants:
         if variant.sku == check_sku:
             return variant
