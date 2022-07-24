@@ -1,10 +1,9 @@
-from turtle import down
-from numpy import product
+from numpy import imag
 import pandas as pd
 import config
 import shopify
 from exceptions import CantCreateVariant
-import requests
+import download_images_dropbox as dbox
 
 def if_variant(variants,check_sku):
     for variant in variants:
@@ -12,11 +11,18 @@ def if_variant(variants,check_sku):
             return variant
     return None
 
-def get_url_image_dropbox(row):
-    downloaded_file = requests.get(str(row["Asset Link"]))
-    file_dest = open("D:\\Piton\\training_program\\downloaded_images\\images.zip","wb")
-    file_dest.write(downloaded_file.content)
-
+def update_product_images(row,product_id):
+    dbox.download_file_dropbox(row)
+    list_of_images = dbox.get_images(row)
+    for image in list_of_images:
+        new_image = shopify.Image({
+            "product_id": product_id,
+        })
+        with open(image,"rb") as f:
+            encoded = f.read()
+        new_image.attach_image(encoded,image)
+        new_image.save()
+    
 def update_product_inventory(variant_instance,row,location_id):
     inventory_item_id = variant_instance.inventory_item_id
     inventory_item = shopify.InventoryItem.find(inventory_item_id)
@@ -69,7 +75,7 @@ def create_product(row,location_id):
         return None 
     product_id = variant.product_id
     update_product_inventory(variant,row,location_id)
-    get_url_image_dropbox(row)
+    update_product_images(row,product_id)
     update_product_metafields(row,product_id)
 
 def upload_products(excel_info):
