@@ -32,7 +32,7 @@ def update_product_inventory(variant_instance,row,location_id):
 
 def update_product_metafields(row,product_id):
     product = shopify.Product.find(product_id)
-    metafield_keys = ["Model","Wheel Diameter","Wheel Rotation","Compatibility","HGHTA (CMS)","WDTHA (CMS)","LGTHA (CMS)"]
+    metafield_keys = ["Model","Wheel Diameter","Wheel Rotation","HGHTA (CMS)","WDTHA (CMS)","LGTHA (CMS)"]
     for key in metafield_keys:
         product_metafield = shopify.Metafield({
             "namespace": f"trm_{(key.replace(' ','')).lower()}",
@@ -43,21 +43,34 @@ def update_product_metafields(row,product_id):
         product.add_metafield(product_metafield)
 
 def new_product_with_variant(row):
-    new_product = shopify.Product.create({
-        "title": str(row["Name"]),
-        "body_html": str(row["Product Description"])+f"<br>{str(row['Features'])}</br>",
-        "vendor": str(row["Brand"]),
-    })
-    new_variant = shopify.Variant.create({
-        "product_id": new_product.id,
-        "barcode": str(row["Barcode"]),
-        "sku": str(row["CentreSoft Code"]),
-        "price": str(row["Trade (Inc VAT)"]),
-        "compare_at_price": str(row["RRP"]),
-        "weight": str(row["WGHTA (KG)"]),
-        "option1": "Title"
-    })
-    if new_variant.exists(new_variant.id):
+    check_sku = row["CentreSoft Code"]
+    check_weight = row["WGHTA (KG)"]
+    if type(check_sku) == str:
+        new_product = shopify.Product.create({
+            "title": str(row["Name"]),
+            "body_html": str(row["Product Description"])+f"<br>{str(row['Features'])}</br>",
+            "vendor": str(row["Brand"]),
+        })
+        if type(check_weight) == float:
+            new_variant = shopify.Variant.create({
+                "product_id": new_product.id,
+                "barcode": str(row["Barcode"]),
+                "sku": str(row["CentreSoft Code"]),
+                "price": str(row["Trade (Inc VAT)"]),
+                "compare_at_price": str(row["RRP"]),
+                "weight": str(row["WGHTA (KG)"]),
+                "option1": "Title"
+            })
+        else:
+            new_variant = shopify.Variant.create({
+                "product_id": new_product.id,
+                "barcode": str(row["Barcode"]),
+                "sku": str(row["CentreSoft Code"]),
+                "price": str(row["Trade (Inc VAT)"]),
+                "compare_at_price": str(row["RRP"]),
+                "weight": 0,
+                "option1": "Title"
+            })
         return new_variant
     else:
         raise CantCreateVariant
@@ -83,11 +96,11 @@ def upload_products(excel_info):
     for i,row in excel_info.iterrows():
         check_sku = (str(row["CentreSoft Code"]))
         current_variant = if_variant(all_variants,check_sku)
-        if not current_variant:
-            create_product(row,default_location_id)
-        else:
+        if current_variant:
             variant = shopify.Variant.find(current_variant.id)
             update_product(variant,row,default_location_id)
+        else:
+            create_product(row,default_location_id)
 
 file_reader = pd.read_excel(config.DOWNLOADED_FILE_NEW_PATH,sheet_name="Steering Wheels & Pedals",skiprows=1)          
 api_version = "2022-04"
