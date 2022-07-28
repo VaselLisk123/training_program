@@ -31,39 +31,39 @@ def create_product_sheet_7(row,value):
 
 def create_product_variant_sheet_1(row,product,value):
     check_weight = row[value.get("Weight")] 
+    product_variants = product.variants
+    for variant in product_variants:
+        variant.barcode = str(row[value.get("Barcode")])
+        variant.sku = str(row[value.get("CentreSoft Code")])
+        variant.price = str(row[value.get("Price")])
+        variant.compare_at_price = str(row[value.get("Compare Price")])
+        variant.weight = row[value.get("Weight")]
+        variant.iventory_management = "shopify"
+        variant.option1 = "Title"
     try:
         float(check_weight)
-        new_variant = shopify.Variant({
-            "product_id": product.id,
-            "barcode": str(row[value.get("Barcode")]),
-            "sku": str(row[value.get("CentreSoft Code")]),
-            "price": str(row[value.get("Price")]),
-            "compare_at_price": str(row[value.get("Compare Price")]),
-            "weight": row[value.get("Weight")],
-            "option1": "Title",
-        })
-        new_variant.save()
     except ValueError:
-        new_variant.weight = 0
-    return new_variant
+        variant.weight = 0
+    variant.save()
+    return variant
 
 def create_product_variant_sheet_7(row,product,value):
     check_weight = row[value.get("Weight")] 
-    new_variant = shopify.Variant({
-    "product_id": product.id,
-    "barcode": str(row[value.get("Barcode")]),
-    "sku": str(row[value.get("CentreSoft Code")]),
-    "price": str(row[value.get("Price")]),
-    "compare_at_price": str(row[value.get("Compare Price")]),
-    "weight": str(row[value.get("Weight")]),
-    "option1": "Title"
-    })
+    product_variants = product.variants
+    for variant in product_variants:
+        variant.barcode = str(row[value.get("Barcode")])
+        variant.sku = str(row[value.get("CentreSoft Code")])    
+        variant.price = str(row[value.get("Price")])
+        variant.compare_at_price = str(row[value.get("Compare Price")])
+        variant.weight = str(row[value.get("Weight")])
+        variant.inventory_management = "shopify"
+        variant.option1 = "Title"
     try:
         float(check_weight)
     except ValueError:
-        new_variant.weight = 0
-    new_variant.save()
-    return new_variant
+       variant.weight = 0
+    variant.save()
+    return variant
 
 def update_product_metafields(row,product,value):
     product = shopify.Product.find(product.id)
@@ -112,5 +112,5 @@ def update_product_image_sheet_7(row,value,product):
 def update_product(variant_instance,row,value,location_id):
     variant_instance.price = str(row[value.get("Price")])
     inventory_item = variant_instance.inventory_item_id
-    shopify.InventoryLevel.set(location_id=location_id, inventory_item_id=inventory_item, available=row[value.get("Carton Quantity")])
+    shopify.InventoryLevel.set(location_id=location_id, inventory_item_id=inventory_item, available=row[value.get("Carton Quantity")],disconnect_if_necessary=False)
 
