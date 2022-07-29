@@ -4,12 +4,11 @@ from exceptions import CantCreateProduct, CantCreateVariant
 import download_images_dropbox as dbox
 import pandas as pd
 
-def create_product_sheet_1(row,value):
-    check_sku = row[value.get("CentreSoft Code")]
+def create_product_sheet_1(row,value,check_sku):
     if pd.isna(check_sku):
         raise CantCreateProduct
     new_product = shopify.Product({
-        "title": "Default Title",
+        "title": value.get("Title"),
         "product_type": str(row[value.get("Type")]),
         "vendor": str(row[value.get("Vendor")]),
         "tags": str(row[value.get("Tag")]),
@@ -17,20 +16,29 @@ def create_product_sheet_1(row,value):
     new_product.save()
     return new_product
 
-def create_product_sheet_7(row,value):
-    check_sku = row[value.get("CentreSoft Code")]
+def create_product_sheet_2(row,value,check_sku):
     if pd.isna(check_sku):
         raise CantCreateProduct
     new_product = shopify.Product({
-            "title": str(row[value.get("Title")]),
-            "body_html": str(row[value.get("Description")])+f"<br>{str(row[value.get('Features')])}</br>",
-            "vendor": str(row[value.get("Vendor")]),
-        })
+        "title": str(row[value.get("Title")]),
+        "body_html": str(row[value.get("Description")]),
+        "tags": str(row[value.get("Tag")]),
+    })
     new_product.save()
     return new_product
 
-def create_product_variant_sheet_1(row,product,value):
-    check_weight = row[value.get("Weight")] 
+def create_product_sheet_7(row,value,check_sku):
+    if pd.isna(check_sku):
+        raise CantCreateProduct
+    new_product = shopify.Product({
+        "title": str(row[value.get("Title")]),
+        "body_html": str(row[value.get("Description")])+f"<br>{str(row[value.get('Features')])}</br>",
+        "vendor": str(row[value.get("Vendor")]),
+    })
+    new_product.save()
+    return new_product
+
+def create_product_variant_sheet_1(row,product,value,check_weight):
     product_variants = product.variants
     for variant in product_variants:
         variant.barcode = str(row[value.get("Barcode")])
@@ -38,7 +46,7 @@ def create_product_variant_sheet_1(row,product,value):
         variant.price = str(row[value.get("Price")])
         variant.compare_at_price = str(row[value.get("Compare Price")])
         variant.weight = row[value.get("Weight")]
-        variant.iventory_management = "shopify"
+        variant.inventory_management = "shopify"
         variant.option1 = "Title"
     try:
         float(check_weight)
@@ -47,8 +55,23 @@ def create_product_variant_sheet_1(row,product,value):
     variant.save()
     return variant
 
-def create_product_variant_sheet_7(row,product,value):
-    check_weight = row[value.get("Weight")] 
+def create_product_variant_sheet_2(row,product,value,check_weight):
+    product_variants = product.variants
+    for variant in product_variants:
+        variant.barcode = int(row[value.get("Barcode")])
+        variant.sku = str(row[value.get("CentreSoft Code")])
+        variant.price = str(row[value.get("Price")])
+        variant.weight = row[value.get("Weight")]
+        variant.inventory_management = "shopify"
+        variant.option1 = "Title"
+    try:
+        float(check_weight)
+    except ValueError:
+        variant.weight = 0
+    variant.save()
+    return variant
+
+def create_product_variant_sheet_7(row,product,value,check_weight):
     product_variants = product.variants
     for variant in product_variants:
         variant.barcode = str(row[value.get("Barcode")])
@@ -83,6 +106,10 @@ def update_product_inventory_sheet_1(variant_instance,row,value,location_id):
     inventory_item.save()
     shopify.InventoryLevel.set(location_id=location_id, inventory_item_id=inventory_item_id, available=row[value.get("Carton Quantity")])
 
+def update_product_inventory_sheet_2(variant_instance,row,value,location_id):
+    inventory_item_id = variant_instance.inventory_item_id
+    shopify.InventoryLevel.set(location_id=location_id, inventory_item_id=inventory_item_id, available=int(row[value.get("Carton Quantity")]))
+
 def update_product_inventory_sheet_7(variant_instance,row,value,location_id):
     inventory_item_id = variant_instance.inventory_item_id
     inventory_item = shopify.InventoryItem.find(inventory_item_id)
@@ -96,6 +123,9 @@ def update_product_image_sheet_1(row,value,product):
         "product_id": product.id,
         "src": str(row[value.get("Image Url")])
     })
+
+def update_product_image_sheet_2(row,value,product):
+    pass
 
 def update_product_image_sheet_7(row,value,product):
     dbox.download_file_dropbox(row)
